@@ -365,8 +365,8 @@ sub get_alive_links {
   if ($res ne "*" && $hosts eq "*") {
     my $list = "";
     my $count = 0;
-    foreach my $peer (glob("$mars/resource-$res/device-*")) {
-      $peer =~ m:/device-(.+):;
+    foreach my $peer (glob("$mars/resource-$res/device-* $mars/resource-$res/remdev-*")) {
+      $peer =~ m,/(?:device|remdev)-(.+),;
       $list .= "," if $count++;
       $list .= $1;
     }
@@ -562,7 +562,7 @@ sub check_res {
     # DO WHAT I MEAN: try to substitute a device name for a badly given resource name if it is unique
     my $count = 0;
     my $found;
-    my @tests = glob("$mars/resource-*/device-$host");
+    my @tests = glob("$mars/resource-*/device-$host $mars/resource-*/remdev-$host");
     foreach my $test (@tests) {
       my $target = get_link($test, 2);
       if ($target eq $res) {
