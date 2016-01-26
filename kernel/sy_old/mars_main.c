@@ -4252,6 +4252,16 @@ done:
 }
 
 static
+void _show_dev(struct mars_rotate *rot)
+{
+	int open_count = 0;
+
+	if (rot->if_brick)
+		open_count = atomic_read(&rot->if_brick->open_count);
+	__show_actual(rot->parent_path, "open-count", open_count);
+}
+
+static
 int make_dev_remote(void *buf, struct mars_dent *dent)
 {
 	struct mars_global *global = buf;
@@ -4400,6 +4410,8 @@ setup:
 			dev_brick->killme = true;
 	}
 
+	_show_dev(rot);
+
 err:
 	brick_string_free(status_path);
 	brick_string_free(status_val);
@@ -4418,7 +4430,6 @@ int make_dev(void *buf, struct mars_dent *dent)
 	struct mars_brick *dev_brick;
 	char *remote;
 	bool switch_on;
-	int open_count;
 	int status = 0;
 
 	if (!parent || !dent->new_link) {
@@ -4510,10 +4521,7 @@ setup:
 	dev_brick->show_status = _show_brick_status;
 
 done:
-	open_count = 0;
-	if (rot->if_brick)
-		open_count = atomic_read(&rot->if_brick->open_count);
-	__show_actual(rot->parent_path, "open-count", open_count);
+	_show_dev(rot);
 	rot->is_primary =
 		rot->trans_brick &&
 		rot->trans_brick->power.led_on &&
