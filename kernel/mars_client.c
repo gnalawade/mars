@@ -716,6 +716,13 @@ void _do_timeout(struct client_output *output, struct list_head *anchor, int *ro
 	timeout_stamp = CURRENT_TIME;
 	timeout_stamp.tv_sec -= io_timeout;
 
+	/* Don't run more than once per second */
+	if (!force && timespec_compare(&timeout_stamp, &brick->last_timeout_stamp) <= 0)
+		return;
+
+	memcpy(&brick->last_timeout_stamp, &timeout_stamp, sizeof(brick->last_timeout_stamp));
+	brick->last_timeout_stamp.tv_sec += 1;
+	
 	traced_lock(&output->lock, flags);
 	for (tmp = anchor->next, next = tmp->next; tmp != anchor; tmp = next, next = tmp->next) {
 		struct client_mref_aspect *mref_a;
