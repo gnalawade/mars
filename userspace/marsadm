@@ -4324,7 +4324,7 @@ my %complex_macros =
    .    "%let{location}{%subst{%{device}}{\@}{ %{direction} }}"
    .    "%{type}Device %{location}%if{%ne{%{devname}}{%{res}}}{ Resource %{res}}"
    .    "%elsif{%{present}}{"
-   .      " Present["
+   .      " %if{%todo-remdev-attach{}}{}{Remains}Present["
    .          "%if{%device-opened{}}{Opened, }"
    .          "%device-ops-rate{} IOPS"
    .          "%if{%remdev-present{}}{"
@@ -4334,7 +4334,7 @@ my %complex_macros =
    .          "%if{%device-hangstamp{}}{ %human-seconds{%-{%time{}}{%device-hangstamp{}}}}"
    .        "]"
    .    "}{%eq{%{direction}}{imported_from}}{"
-   .      " NotPresent"
+   .      " Not%if{%and{%todo-remdev-attach{}}{%eq{%get-remdev-peer{}}{%get-primary{}}}}{Yet}Present"
    .    "}\n"
    .  "}",
 
