@@ -4297,7 +4297,7 @@ int make_dev_remote(void *buf, struct mars_dent *dent)
 	char *status_path = NULL;
 	char *status_val = NULL;
 	char *client_path = NULL;
-	struct mars_brick *remote_brick;
+	struct client_brick *remote_brick;
 	struct mars_brick *dev_brick;
 	int switch_on = 0;
 	int status = -EINVAL;
@@ -4386,7 +4386,7 @@ setup:
 	client_path = path_make("%s/replay-%s@%s",
 				parent->d_path, primary, primary);
 
-	remote_brick =
+	remote_brick = (void *)
 		make_brick_all(global,
 			       dent,
 			       _set_client_params,
@@ -4399,9 +4399,9 @@ setup:
 			       (const char *[]){},
 			       0,
 			       client_path);
-	rot->remote_brick = (void *)remote_brick;
+	rot->remote_brick = remote_brick;
 	if (remote_brick) {
-		remote_brick->kill_ptr = (void**)&rot->remote_brick;
+		remote_brick->kill_ptr = (void *)&rot->remote_brick;
 		/* When on, set the timeout to infinite.
 		 * This is necessary for prevention of IO errors reported to
 		 * filesystems like XFS. Some fs could run into problems when
@@ -4411,8 +4411,10 @@ setup:
 		 */
 		if (switch_on) {
 			remote_brick->power.io_timeout = -1;
+			remote_brick->keep_idle_sockets = true;
 		} else {
 			remote_brick->power.io_timeout = 1;
+			remote_brick->keep_idle_sockets = false;
 			remote_brick->killme = true;
 		}
 	} else {
